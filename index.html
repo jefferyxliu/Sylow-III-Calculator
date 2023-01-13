@@ -1,0 +1,159 @@
+<html>
+    <head>
+        <title>Sylow III Calculator</title>
+        <!-- <link rel="icon" href="./favicon/favicon.ico"> -->
+    </head>
+
+    <style>
+
+        body {
+            font-family: tahoma, sans-serif;
+            font-size: 30px;
+            color: rgb(255,255,255);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: rgb(66, 52, 118);
+        }
+
+        input {
+            font-family: tahoma, sans-serif;
+            font-size: 40px;
+            background-color: rgba(0,0,0,0.5);
+            color: rgb(255,255,255);
+            border: 1px solid rgb(127,127,127);
+            border-radius: 8px;
+        }
+
+        textarea {
+            font-family: tahoma, sans-serif;
+            font-size: 32px;
+            background-color: rgba(0,0,0,0);
+            color: rgb(255,255,255);
+            border: none;
+            border-radius: 8px;
+            resize: none;
+        }
+
+        .box {
+            background-color: rgba(0,0,0, 0.8);
+            border: 1px solid rgb(127,127,127);
+            border-radius: 8px;
+            padding: 8px;
+            margin: 4px;
+            width: fit-content;
+            transition-property: all;
+            transition-duration: 1s;
+        }
+
+        input:hover {
+            background-color: rgba(80,80,80,0.5);
+            color: rgb(255,255,255);
+        }
+
+    </style>
+    <div class = "box">
+        <p>
+            Finite group of order <input type = "number" id = 'order' value = "2" min = "2"></input>
+        </p>
+        <p id = 'text'>
+        </p>
+    </div>
+    
+    <div class = "box">
+        <p>
+            About: Given a <a href = "https://en.wikipedia.org/wiki/Finite_group">finite group</a> G, and a prime factor p with multiplicity k of the order of G, a <a href = "https://en.wikipedia.org/wiki/Sylow_theorems">Sylow p-subgroup</a> of G is a <a href ="https://en.wikipedia.org/wiki/Subgroup">subgroup</a> of order p^k.
+            (For example, if |G| = 20 = 2^2 * 5^1, the Sylow 2-subgroups are the subgroups of order 4 = 2^2.)
+            The <a href = "https://en.wikipedia.org/wiki/Sylow_theorems">Sylow Theorems</a> tells us some facts about Sylow subgroups. In short:
+            <ol>
+                <li>G always has one or more Sylow p-subgroup(s).</li>
+                <li>All of the Sylow p-subgroups are <a href = "https://en.wikipedia.org/wiki/Conjugacy_class">conjugate</a> to each other.</li>
+                <li>The number of Sylow p-subgroups divides |G|/p^k and is congruent to 1 modulo p.</li>
+            </ol>
+            This calculator finds the potential number(s) of Sylow subgroups based on the constraints in Sylow Theorem (3).
+        </p>
+    </div>
+
+    <body>
+        <script>
+            const paragraph = document.getElementById('text');
+            const nInput = document.getElementById('order');
+
+            nInput.addEventListener("input", (event) => {
+                paragraph.innerHTML = '';
+                const n = nInput.value;
+                if (n > 1) {
+                    SylowSubgroups(nInput.value)
+                }
+            })
+
+            function print(text) {
+                paragraph.innerHTML += text + '<br>';
+                console.log(text);
+            }
+
+/*             function isPrime(n) {
+                if (n == 1) {
+                    return false;
+                }
+                for (let i = 2; i <= Math.sqrt(n); i++) {
+                    if (n % i == 0) {
+                        return false;
+                    }
+                }
+                return true;
+            } */
+
+/*             for (let n = 1; n < 50; n++) {
+                print(`${n}: ${isPrime(n) ? 'prime' : ''}`)
+            } */
+
+            function primeFactorization(n) {
+                let target = n;
+                let i;
+                const factors = new Map();
+                while (target != 1) {
+                    i = 2;
+                    while (target % i) {
+                        i++;
+                    }
+                    if (factors.has(i)) {
+                        factors.set(i, factors.get(i) + 1);
+                    } else {
+                        factors.set(i, 1);
+                    }
+                    target /= i;
+                }
+                return factors;
+            }
+
+            function SylowSubgroups(n) {
+                const factors = primeFactorization(n);
+                let m;
+                let l = [];
+                const pSylowSubgroups = new Map();
+                for (p of factors.keys()) {
+                    l.push(`${p}^${factors.get(p)}`)
+
+                    const l2 = [];
+                    m = n / p**factors.get(p);
+                    for (let i = 1; i <= m; i++) {
+                        if (m % i == 0 && i % p == 1) {
+                            l2.push([i]);
+                        }
+                    }
+
+                    pSylowSubgroups.set(p, l2);
+                }
+
+                print(` = ${l.join(' * ')}`);
+                for (p of factors.keys()) {
+                    print(`Sylow ${p}-subgroups (order ${p ** factors.get(p)}): ${pSylowSubgroups.get(p).join(', ')}`);
+                }
+            }
+
+            SylowSubgroups(nInput.value);
+
+        </script>
+    </body>
+</html>
